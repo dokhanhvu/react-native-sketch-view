@@ -27,16 +27,21 @@ public class PenSketchTool extends PathTrackingSketchTool implements ToolThickne
         paint.setAntiAlias(true);
         paint.setStrokeJoin(Paint.Join.ROUND);
         paint.setStrokeCap(Paint.Cap.ROUND);
+        paint.setStrokeWidth(15);
         this.moveDistance = new PointF(0, 0);
     }
 
     @Override
     public void render(Canvas canvas) {
+        paint.setColor(toolColor);
+        paint.setStrokeWidth(toolThickness);
         canvas.drawPath(path, paint);
     }
 
     @Override
-    public void render(Canvas canvas, Path path) {
+    public void render(Canvas canvas, Path path, int color, float thickness) {
+        paint.setColor(color);
+        paint.setStrokeWidth(thickness);
         canvas.drawPath(path, paint);
     }
 
@@ -47,8 +52,7 @@ public class PenSketchTool extends PathTrackingSketchTool implements ToolThickne
 
     @Override
     public void setToolThickness(float toolThickness) {
-        this.toolThickness = toolThickness;
-        paint.setStrokeWidth(ToolUtils.ConvertDPToPixels(touchView.getContext(), toolThickness));
+        this.toolThickness = ToolUtils.ConvertDPToPixels(touchView.getContext(), toolThickness);
     }
 
     @Override
@@ -59,7 +63,6 @@ public class PenSketchTool extends PathTrackingSketchTool implements ToolThickne
     @Override
     public void setToolColor(int toolColor) {
         this.toolColor = toolColor;
-        paint.setColor(toolColor);
     }
 
     @Override
@@ -67,4 +70,8 @@ public class PenSketchTool extends PathTrackingSketchTool implements ToolThickne
         return toolColor;
     }
 
+    @Override
+    public SketchPath getPath() {
+        return new SketchPath(path, getType(), toolColor, toolThickness);
+    }
 }

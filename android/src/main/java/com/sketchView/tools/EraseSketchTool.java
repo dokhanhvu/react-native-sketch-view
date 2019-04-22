@@ -31,7 +31,7 @@ public class EraseSketchTool extends PathTrackingSketchTool implements ToolThick
     }
 
     @Override
-    public void render(Canvas canvas, Path path) {
+    public void render(Canvas canvas, Path path, int color, float thickness) {
         canvas.drawPath(path, paint);
     }
 
@@ -49,5 +49,10 @@ public class EraseSketchTool extends PathTrackingSketchTool implements ToolThick
     @Override
     public float getToolThickness() {
         return toolThickness;
+    }
+
+    @Override
+    public SketchPath getPath() {
+        return new SketchPath(path, getType());
     }
 }

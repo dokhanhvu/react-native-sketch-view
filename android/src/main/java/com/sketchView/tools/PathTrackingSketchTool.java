@@ -45,17 +45,18 @@ public abstract class PathTrackingSketchTool extends SketchTool {
     }
 
     @Override
-    public void setScaleFactor(float factor) { this.factor = factor; }
+    public void setScaleFactor(float factor) {
+        this.factor = factor;
+    }
 
     @Override
-    public void setMoveDistance(PointF mid) { this.moveDistance = mid; }
+    public void setMoveDistance(PointF mid) {
+        this.moveDistance = mid;
+    }
 
     @Override
     public void reset() {
         moveDistance.set(0, 0);
         factor = 1.f;
     }
-
-    @Override
-    public SketchPath getPath() { return new SketchPath(path, getType()); }
 }

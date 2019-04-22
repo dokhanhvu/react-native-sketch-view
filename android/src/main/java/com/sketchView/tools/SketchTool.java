@@ -1,6 +1,7 @@
 package com.sketchView.tools;
 
 import android.graphics.Canvas;
+import android.graphics.Path;
 import android.graphics.PointF;
 import android.view.MotionEvent;
 import android.view.View;
@@ -25,6 +26,8 @@ public abstract class SketchTool implements View.OnTouchListener {
     }
 
     public abstract void render(Canvas canvas);
+
+    public abstract void render(Canvas canvas, Path path, int color, float thickness);
 
     public abstract void clear();
 
@@ -61,4 +64,9 @@ public abstract class SketchTool implements View.OnTouchListener {
     public abstract void setMoveDistance(PointF mid);
 
     public abstract void reset();
+
+    public abstract int getType();
+
+    public abstract SketchPath getPath();
+
 }

@@ -8,7 +8,7 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewConfiguration;
-import com.example.myapplication.sketchView.tools.*;
+import com.sketchView.tools.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +23,7 @@ public class SketchView extends View {
     SketchTool currentTool;
     SketchTool penTool;
     SketchTool eraseTool;
+
     List<SketchPath> paths = new ArrayList<>();
 
     private float mPrimStartTouchEventX = -1;
@@ -47,6 +48,7 @@ public class SketchView extends View {
     private boolean isTwoFinger = false;
 
     private BitmapDrawable drawable;
+    private Bitmap incrementalImage;
 
     private ScaleGestureDetector mScaleDetector;
 
@@ -80,6 +82,7 @@ public class SketchView extends View {
     public void setViewImage(Bitmap bitmap) {
         drawable = new BitmapDrawable(getResources(), bitmap);
         drawable.setBounds(0, 0, getWidth(), getHeight());
+        incrementalImage = Bitmap.createScaledBitmap(drawable.getBitmap(), getWidth(), getHeight(), false);
         invalidate();
     }
 
@@ -98,15 +101,41 @@ public class SketchView extends View {
 
     private void drawPath(Canvas canvas){
         for(SketchPath path : paths){
-            switch (path.PathType){
+            switch (path.pathType){
                 case SketchTool.TYPE_ERASE:
-                    eraseTool.render(canvas, path.path);
+                    eraseTool.render(canvas, path.path, path.color, path.thickness);
                     break;
                 case SketchTool.TYPE_PEN:
                 default:
-                    penTool.render(canvas, path.path);
+                    penTool.render(canvas, path.path, path.color, path.thickness);
             }
         }
+    }
+
+    private void drawBitmap(){
+        Bitmap bm = incrementalImage.copy(incrementalImage.getConfig(), true);
+        Canvas canvas = new Canvas(bm);
+//        canvas.setMatrix(mCurrentMatrix);
+        drawPath(canvas);
+        paths.clear();
+        incrementalImage = bm;
+        invalidate();
+    }
+
+    public void setColor(double red, double green, double blue, double alpha){
+        String r = Integer.toHexString((int) red);
+        String re = r.length() < 2 ? "0"+ r : r;
+        String g = Integer.toHexString((int) green);
+        String gr = g.length() < 2 ? "0"+ g : g;
+        String b = Integer.toHexString((int) blue);
+        String bl = b.length() < 2 ? "0"+ b : b;
+        String colorString = alpha > 0.5 ? "#FF" + re + gr + bl : "#4D" +  re + gr + bl;
+        Integer color = Color.parseColor(colorString);
+        ((ToolColor)penTool).setToolColor(color);
+    }
+
+    public void setThickness(float thickness){
+        ((ToolThickness)penTool).setToolThickness(thickness);
     }
 
     @Override
@@ -117,10 +146,10 @@ public class SketchView extends View {
             drawable = new BitmapDrawable(getResources(), Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.RGB_565));
         }
         canvas.setMatrix(mCurrentMatrix);
-        drawable.draw(canvas);
+        canvas.drawBitmap(incrementalImage, 0, 0, null);
         if(isDraw)
             currentTool.render(canvas);
-        drawPath(canvas);
+//        drawPath(canvas);
 
         canvas.restore();
     }
@@ -161,6 +190,10 @@ public class SketchView extends View {
                     if (oldDist > 10.0f) {
                         currentTool.onTouch(this, ev);
                         paths.add(currentTool.getPath());
+                        if(paths.size() > 5)
+                        {
+                            drawBitmap();
+                        }
                     }
                 } else if (isTwoFinger) {
                     boolean isSecMoving = (isScrollGesture(ev, 1, mSecStartTouchEventX, mSecStartTouchEventY));
@@ -192,6 +225,7 @@ public class SketchView extends View {
                 mPrimStartTouchEventY = -1;
                 if (isDraw) {
                     mCurrentMatrix.set(savedMatrix);
+                    drawBitmap();
                     currentTool.clear();
                 } else {
                     mScaleDetector.onTouchEvent(ev);
