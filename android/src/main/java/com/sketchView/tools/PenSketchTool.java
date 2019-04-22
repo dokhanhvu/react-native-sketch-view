@@ -1,8 +1,6 @@
 package com.sketchView.tools;
 
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
+import android.graphics.*;
 import android.view.View;
 
 import com.sketchView.utils.ToolUtils;
@@ -18,23 +16,33 @@ public class PenSketchTool extends PathTrackingSketchTool implements ToolThickne
     private float toolThickness;
     private int toolColor;
 
-    private Paint paint = new Paint();
+    public Paint paint = new Paint();
 
     public PenSketchTool(View touchView) {
         super(touchView);
 
         setToolColor(DEFAULT_COLOR);
         setToolThickness(DEFAULT_THICKNESS);
-
         paint.setStyle(Paint.Style.STROKE);
         paint.setAntiAlias(true);
         paint.setStrokeJoin(Paint.Join.ROUND);
         paint.setStrokeCap(Paint.Cap.ROUND);
+        this.moveDistance = new PointF(0, 0);
     }
 
     @Override
     public void render(Canvas canvas) {
         canvas.drawPath(path, paint);
+    }
+
+    @Override
+    public void render(Canvas canvas, Path path) {
+        canvas.drawPath(path, paint);
+    }
+
+    @Override
+    public int getType() {
+        return SketchTool.TYPE_PEN;
     }
 
     @Override
@@ -58,4 +66,5 @@ public class PenSketchTool extends PathTrackingSketchTool implements ToolThickne
     public int getToolColor() {
         return toolColor;
     }
+
 }

@@ -3,7 +3,6 @@ package com.sketchView;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.widget.LinearLayout;
 
 import java.io.File;
@@ -27,16 +26,14 @@ public class SketchViewContainer extends LinearLayout {
 
     public SketchFile saveToLocalCache() throws IOException {
 
-        Bitmap viewBitmap = Bitmap.createBitmap(sketchView.getWidth(), sketchView.getHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(viewBitmap);
-        draw(canvas);
+        Bitmap viewBitmap = sketchView.getBitMap();
 
         File cacheFile = File.createTempFile("sketch_", UUID.randomUUID().toString()+".png");
         FileOutputStream imageOutput = new FileOutputStream(cacheFile);
         viewBitmap.compress(Bitmap.CompressFormat.PNG, 100, imageOutput);
 
         SketchFile sketchFile = new SketchFile();
-        sketchFile.localFilePath = cacheFile.getAbsolutePath();;
+        sketchFile.localFilePath = cacheFile.getAbsolutePath();
         sketchFile.width = viewBitmap.getWidth();
         sketchFile.height = viewBitmap.getHeight();
         return sketchFile;
@@ -45,9 +42,7 @@ public class SketchViewContainer extends LinearLayout {
 
     public boolean openSketchFile(String localFilePath) {
 
-        BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
-        bitmapOptions.outWidth = sketchView.getWidth();
-        Bitmap bitmap = BitmapFactory.decodeFile(localFilePath, bitmapOptions);
+        Bitmap bitmap = BitmapFactory.decodeFile(localFilePath);
         if(bitmap != null) {
             sketchView.setViewImage(bitmap);
             return true;

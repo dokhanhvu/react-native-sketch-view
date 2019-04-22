@@ -1,9 +1,6 @@
 package com.sketchView.tools;
 
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
+import android.graphics.*;
 import android.view.View;
 
 import com.sketchView.utils.ToolUtils;
@@ -23,16 +20,24 @@ public class EraseSketchTool extends PathTrackingSketchTool implements ToolThick
         super(touchView);
 
         setToolThickness(DEFAULT_THICKNESS);
-
-        PorterDuffXfermode porterDuffXfermode = new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
-        paint.setXfermode(porterDuffXfermode);
         paint.setStyle(Paint.Style.STROKE);
+        paint.setColor(Color.WHITE);
+        this.moveDistance = new PointF(0, 0);
     }
 
     @Override
     public void render(Canvas canvas) {
-        touchView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         canvas.drawPath(path, paint);
+    }
+
+    @Override
+    public void render(Canvas canvas, Path path) {
+        canvas.drawPath(path, paint);
+    }
+
+    @Override
+    public int getType() {
+        return SketchTool.TYPE_ERASE;
     }
 
     @Override

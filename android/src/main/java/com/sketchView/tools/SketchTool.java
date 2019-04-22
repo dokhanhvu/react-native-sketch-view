@@ -1,6 +1,7 @@
 package com.sketchView.tools;
 
 import android.graphics.Canvas;
+import android.graphics.PointF;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -14,6 +15,10 @@ public abstract class SketchTool implements View.OnTouchListener {
     public static final int TYPE_ERASE = 1;
 
     View touchView;
+
+    PointF moveDistance;
+
+    float factor;
 
     SketchTool(View touchView) {
         this.touchView = touchView;
@@ -51,4 +56,9 @@ public abstract class SketchTool implements View.OnTouchListener {
 
     abstract void onTouchCancel(MotionEvent event);
 
+    public abstract void setScaleFactor(float factor);
+
+    public abstract void setMoveDistance(PointF mid);
+
+    public abstract void reset();
 }
