@@ -24,7 +24,8 @@ public class SketchView extends View {
     SketchTool penTool;
     SketchTool eraseTool;
 
-    List<SketchPath> paths = new ArrayList<>();
+    final List<SketchPath> paths = new ArrayList<>();
+    List<SketchPath> savePaths = new ArrayList<>();
 
     private float mPrimStartTouchEventX = -1;
     private float mPrimStartTouchEventY = -1;
@@ -53,7 +54,15 @@ public class SketchView extends View {
     private ScaleGestureDetector mScaleDetector;
 
     public SketchView(Context context) {
-        super(context, null);
+        this(context, null);
+    }
+
+    public SketchView(Context context, AttributeSet attr) {
+        this(context, attr, 0);
+    }
+
+    public SketchView(Context context, AttributeSet attr, int defaultStyleAttr) {
+        super(context, attr, defaultStyleAttr);
         penTool = new PenSketchTool(this);
         eraseTool = new EraseSketchTool(this);
         setToolType(SketchTool.TYPE_PEN);
@@ -95,12 +104,12 @@ public class SketchView extends View {
         Matrix matrix = new Matrix();
         matrix.postScale(scaleWidth, scaleHeight);
         canvas.setMatrix(matrix);
-        drawPath(canvas);
+        drawPath(canvas, savePaths);
         return bmOverlay;
     }
 
-    private void drawPath(Canvas canvas){
-        for(SketchPath path : paths){
+    private void drawPath(Canvas canvas, List<SketchPath> drawPaths){
+        for(SketchPath path : drawPaths){
             switch (path.pathType){
                 case SketchTool.TYPE_ERASE:
                     eraseTool.render(canvas, path.path, path.color, path.thickness);
@@ -116,7 +125,7 @@ public class SketchView extends View {
         Bitmap bm = incrementalImage.copy(incrementalImage.getConfig(), true);
         Canvas canvas = new Canvas(bm);
 //        canvas.setMatrix(mCurrentMatrix);
-        drawPath(canvas);
+        drawPath(canvas, paths);
         paths.clear();
         incrementalImage = bm;
         invalidate();
@@ -190,9 +199,12 @@ public class SketchView extends View {
                     if (oldDist > 10.0f) {
                         currentTool.onTouch(this, ev);
                         paths.add(currentTool.getPath());
+                        savePaths.add(currentTool.getPath());
                         if(paths.size() > 5)
                         {
-                            drawBitmap();
+                            synchronized(paths){
+                                drawBitmap();
+                            }
                         }
                     }
                 } else if (isTwoFinger) {
